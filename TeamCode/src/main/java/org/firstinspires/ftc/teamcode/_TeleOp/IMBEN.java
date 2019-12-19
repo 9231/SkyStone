@@ -131,7 +131,7 @@ IMBEN extends OpMode
 
 
         try{
-            Waist  = hardwareMap.get(DcMotor.class, "FrontLeft");
+            Waist  = hardwareMap.get(DcMotor.class, "Waist");
             Waist.setDirection(DcMotor.Direction.FORWARD);
             hasWaist = Boolean.TRUE;
             telemetry.addData("Waist", "Initialized");
@@ -142,7 +142,7 @@ IMBEN extends OpMode
 
 
         try{
-            Shoulder  = hardwareMap.get(DcMotor.class, "FrontLeft");
+            Shoulder  = hardwareMap.get(DcMotor.class, "Shoulder");
             Shoulder.setDirection(DcMotor.Direction.FORWARD);
             hasShoulder = Boolean.TRUE;
             telemetry.addData("Shoulder", "Initialized");
@@ -153,7 +153,7 @@ IMBEN extends OpMode
 
 
         try{
-            Xwrist  = hardwareMap.get(Servo.class, "FrontLeft");
+            Xwrist  = hardwareMap.get(Servo.class, "Xwrist");
             hasXwrist = Boolean.TRUE;
             telemetry.addData("Xwrist", "Initialized");
         }
@@ -163,7 +163,7 @@ IMBEN extends OpMode
 
 
         try{
-            Ywrist  = hardwareMap.get(Servo.class, "FrontLeft");
+            Ywrist  = hardwareMap.get(Servo.class, "Ywrist");
             hasYwrist = Boolean.TRUE;
             telemetry.addData("Ywrist", "Initialized");
         }
@@ -173,7 +173,7 @@ IMBEN extends OpMode
 
 
         try{
-            Grab  = hardwareMap.get(Servo.class, "FrontLeft");
+            Grab  = hardwareMap.get(Servo.class, "Grab");
             hasGrab = Boolean.TRUE;
             telemetry.addData("Grab", "Initialized");
         }
@@ -200,6 +200,7 @@ IMBEN extends OpMode
         catch (IllegalArgumentException iax)  {
             telemetry.addData("rightRoly", "Failed");
         }
+
         //ben is the best humanbeing on the planet
 
 //        // Initialize the hardware variables. Note that the strings used here as parameters
@@ -239,6 +240,9 @@ IMBEN extends OpMode
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
      */
+
+    double save_dpad_XY = 0;
+
     @Override
     public void loop() {
 
@@ -249,17 +253,31 @@ IMBEN extends OpMode
         double RightTrigger = gamepad1.right_trigger;
         double Angle;
 
+        double Speed = (LeftTrigger * 0.4 + RightTrigger * 0.6) * Math.sqrt(2);
+
         double rollyOut = -gamepad2.left_trigger;
         double rollyIn = gamepad2.right_trigger;
 
-//               double Xwrist = gamepad2.n
+        boolean ControllerGrab = gamepad2.right_bumper;
+
+        boolean ControllerXwristL = gamepad2.dpad_left;
+        boolean ControllerXwristR = gamepad2.dpad_right;
+
+        if (ControllerXwristR == true) {
+            save_dpad_XY = 0.8;
+        }
+        else if (ControllerXwristL == true) {
+            save_dpad_XY = 0.4826;
+        }
+
 //        double Ywrist = gamepad2.
-//        double Grab = gamepad2.
+
+
+//        double Righttrigger_Y2 = -gamepad2.right_stick_y;
 //        double Waist = gamepad2.left_stick
 //        double Shoulder = gamepad2.left_stick
 
         //speed formula
-        double Speed = (LeftTrigger * 0.4 + RightTrigger * 0.6) * Math.sqrt(2);
 
         double FrontRightPower = 0;
         double FrontLeftPower = 0;
@@ -356,6 +374,21 @@ IMBEN extends OpMode
             BottomRight.setPower(BackRightPower);
         }
 
+        double GGrab = ControllerGrab ? 0.9 : 0.69 ;
+//        double XwristL = ControllerXwristL ? 0.5 : ;
+//        double XwristR = ControllerXwristR ? 0.5 : 0.0 ;
+
+
+        if (hasGrab) {
+            Grab.setPosition(GGrab);
+        }
+
+        if (hasXwrist) {
+            Xwrist.setPosition(save_dpad_XY);
+        }
+
+
+
 
 
         telemetry.addData("left_stick_x", LeftRight);
@@ -367,6 +400,8 @@ IMBEN extends OpMode
         telemetry.addData("MotorPower","Left Front(%.2f), Right Front (%.2f)", FrontLeftPower, FrontRightPower);
         telemetry.addData("MotorPower","Left Back(%.2f), Right Back (%.2f)", BackLeftPower, BackRightPower);
         telemetry.addData("rolliMotors","Left (%.2f), Right (%.2f)", rollyOut + rollyIn, rollyOut + rollyIn);
+        telemetry.addData("Grabber", ControllerGrab );
+        telemetry.addData("Xwrist", save_dpad_XY);
 
     }
 
