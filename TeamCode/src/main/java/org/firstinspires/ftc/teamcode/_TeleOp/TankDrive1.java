@@ -47,7 +47,7 @@ import org.firstinspires.ftc.teamcode._Test._Drive.RobotHardware;
  * Enables control of the robot via the gamepad
  */
 @TeleOp(name="TankDrive1", group="Test")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class TankDrive1 extends OpMode {
 
 	RobotHardware rh;

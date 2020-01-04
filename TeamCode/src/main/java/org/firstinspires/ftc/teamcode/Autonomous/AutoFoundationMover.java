@@ -94,11 +94,11 @@ public class AutoFoundationMover extends LinearOpMode {
 
         // Move left
         robot.FrontLeft.setPower(BACKWARD_SPEED);
-        robot.FrontRight.setPower(BACKWARD_SPEED);
-        robot.BackLeft.setPower(BACKWARD_SPEED);
+        robot.FrontRight.setPower(FORWARD_SPEED);
+        robot.BackLeft.setPower(FORWARD_SPEED);
         robot.BackRight.setPower(BACKWARD_SPEED);
 
-        while (opModeIsActive() && (runtime.seconds() < 1.9)) {
+        while (opModeIsActive() && (runtime.seconds() < 2.2)) {
             telemetry.addData("Direction", "Forward: %2.5f S Elapsed", runtime.seconds());
             telemetry.update();
         }
@@ -120,8 +120,8 @@ public class AutoFoundationMover extends LinearOpMode {
         runtime.reset();
 
         robot.FrontLeft.setPower(FORWARD_SPEED);
-        robot.FrontRight.setPower(BACKWARD_SPEED);
-        robot.BackLeft.setPower(BACKWARD_SPEED);
+        robot.FrontRight.setPower(FORWARD_SPEED);
+        robot.BackLeft.setPower(FORWARD_SPEED);
         robot.BackRight.setPower(FORWARD_SPEED);
 
 
@@ -151,22 +151,23 @@ public class AutoFoundationMover extends LinearOpMode {
         //Stop
         runtime.reset();
 
+        //keep motors stopped
         robot.FrontLeft.setPower(0);
         robot.FrontRight.setPower(0);
         robot.BackLeft.setPower(0);
         robot.BackRight.setPower(0);
 
-        while (opModeIsActive() && (runtime.seconds() < 0.5)) {
-            telemetry.addData("Direction", "Stopped: %2.5f S Elapsed", runtime.seconds());
+        while (opModeIsActive() && (runtime.seconds() < 2.0)) {
+            telemetry.addData("Direction", "Stopped", runtime.seconds());
             telemetry.update();
         }
 
         runtime.reset();
-        
+
         // Move right
         robot.FrontLeft.setPower(FORWARD_SPEED);
-        robot.FrontRight.setPower(FORWARD_SPEED);
-        robot.BackLeft.setPower(FORWARD_SPEED);
+        robot.FrontRight.setPower(BACKWARD_SPEED);
+        robot.BackLeft.setPower(BACKWARD_SPEED);
         robot.BackRight.setPower(FORWARD_SPEED);
 
         while (opModeIsActive() && (runtime.seconds() < 1.9)) {

@@ -55,7 +55,7 @@ import org.firstinspires.ftc.teamcode._Test._Drive.RobotHardware;
  */
 
 @TeleOp(name="TankDrive PosInt Encoder", group="Test")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class TankDrivePosInt extends OpMode {
 
 	SensorLib.EncoderGyroPosInt mPosInt;	// position integrator

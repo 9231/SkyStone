@@ -31,7 +31,6 @@ package org.firstinspires.ftc.teamcode.Autonimous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode._Libs.Xdrive;
@@ -63,13 +62,6 @@ public class AutoImBenfFR  extends LinearOpMode {
     Xdrive         robot   = new Xdrive();   // Use a Pushbot's hardware
     private ElapsedTime     runtime = new ElapsedTime();
 
-    //declaring servos
-    private Servo leftToe;
-    private Servo rightToe;
-
-    //
-    private Boolean hasLeftToe = false;
-    private Boolean hasRightToe = false;
 
     static final double     FORWARD_SPEED = 0.4;
     static final double     BACKWARD_SPEED = -0.4;
@@ -83,32 +75,6 @@ public class AutoImBenfFR  extends LinearOpMode {
          */
         robot.init(hardwareMap);
 
-//track if servos are connected
-        try {
-            leftToe = hardwareMap.get(Servo.class, "leftToe");
-            telemetry.addData("servo", "Left toe initialized");
-            hasLeftToe = true;
-
-            //make left toe begin in upwards position
-            leftToe.setPosition(0.7);
-        }
-
-        catch (IllegalArgumentException iax) {
-            telemetry.addData("servo", "Servo isn't working you diddly dumbdumb ding fling");
-        }
-
-        //right toe connection
-        try {
-            rightToe = hardwareMap.get(Servo.class, "rightToe");
-            telemetry.addData("servo", "Right toe is initialized");
-            hasRightToe = true;
-
-            //make right toe begin in upwards position
-            rightToe.setPosition(0);
-        }
-        catch (IllegalArgumentException iax) {
-            telemetry.addData("servo", "Servo isn't working you diddly dumbdumb ding fling");
-        }
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Status", "Ready to run");
@@ -120,10 +86,10 @@ public class AutoImBenfFR  extends LinearOpMode {
 
         runtime.reset();
         // Move forward
-        robot.FrontLeft.setPower(FORWARD_SPEED);
-        robot.FrontRight.setPower(FORWARD_SPEED);
-        robot.BackLeft.setPower(FORWARD_SPEED);
-        robot.BackRight.setPower(FORWARD_SPEED);
+        robot.FrontLeft.setPower(BACKWARD_SPEED);
+        robot.FrontRight.setPower(BACKWARD_SPEED);
+        robot.BackLeft.setPower(BACKWARD_SPEED);
+        robot.BackRight.setPower(BACKWARD_SPEED);
 
         while (opModeIsActive() && (runtime.seconds() < 0.3)) {
             telemetry.addData("Direction", "Forward: %2.5f S Elapsed", runtime.seconds());
@@ -145,10 +111,10 @@ public class AutoImBenfFR  extends LinearOpMode {
 
         // Move left
 
-        robot.FrontLeft.setPower(FORWARD_SPEED);
-        robot.FrontRight.setPower(BACKWARD_SPEED);
-        robot.BackLeft.setPower(BACKWARD_SPEED);
-        robot.BackRight.setPower(FORWARD_SPEED);
+        robot.FrontLeft.setPower(BACKWARD_SPEED);
+        robot.FrontRight.setPower(FORWARD_SPEED);
+        robot.BackLeft.setPower(FORWARD_SPEED);
+        robot.BackRight.setPower(BACKWARD_SPEED);
 
 
         while (opModeIsActive() && (runtime.seconds() < 1.3)) {

@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-@TeleOp(name="Im Ben", group="Iterative Opmode")
+@TeleOp(name="Im Ben", group="Savvy is cooler than you")
 public class
 IMBEN extends OpMode
 {
@@ -121,17 +121,19 @@ IMBEN extends OpMode
 
 
         //ben is the best humanbeing on the planet
+        //BET
+        //also human being is not one word
 
-//        // Initialize the hardware variables. Note that the strings used here as parameters
-//        // to 'get' must correspond to the names assigned during the robot configuration
-//        // step (using the FTC Robot Controller app on the phone).
+        /* Initialize the hardware variables. Note that the strings used here as parameters
+        to 'get' must correspond to the names assigned during the robot configuration
+        step (using the FTC Robot Controller app on the phone). */
 //        BottomLeft  = hardwareMap.get(DcMotor.class, "left_drive");
 //        BottomRight = hardwareMap.get(DcMotor.class, "right_drive");
 //        TopLeft = hardwareMap.get(DcMotor.class, "right_drive");
 //        TopRight = hardwareMap.get(DcMotor.class, "right_drive");
-//
-//        // Most robots need the motor on one side to be reversed to drive forward
-//        // Reverse the motor that runs backwards when connected directly to the battery
+
+        /* Most robots need the motor on one side to be reversed to drive forward
+        Reverse the motor that runs backwards when connected directly to the battery */
 //        leftDrive.setDirection(DcMotor.Direction.FORWARD);
 //        rightDrive.setDirection(DcMotor.Direction.REVERSE);
 
@@ -177,10 +179,10 @@ IMBEN extends OpMode
         double FrontLeftPower = 0;
         double BackRightPower = 0;
         double BackLeftPower = 0;
-        //double LeftFlipperPotition = 0;
-        //double RightFlipperPotition = 0;
-        //double LeftScoopPotition = 0;
-        //double RightScoopPotition = 0;
+//        double LeftFlipperPotition = 0;
+//        double RightFlipperPotition = 0;
+//        double LeftScoopPotition = 0;
+//        double RightScoopPotition = 0;
 
         //this is getting rid of negative zero yay!
         if(LeftRight > -0.000001 && LeftRight < 0.000001){
@@ -231,7 +233,7 @@ IMBEN extends OpMode
 
             FrontRightPower = Math.cos(Math.toRadians(Angle+45));
 
-            BackLeftPower = Math.cos(Math.toRadians(Angle-135));
+            BackLeftPower = -Math.cos(Math.toRadians(Angle-135));
 
             BackRightPower = -Math.cos(Math.toRadians(Angle+135));
 

@@ -47,7 +47,7 @@ import org.firstinspires.ftc.teamcode._Test._Drive.RobotHardware;
  * squirrley traversal (left and right sticks in x direction)
  */
 @TeleOp(name="SquirrelyDrive2", group="Test")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class SquirrelyDrive2 extends OpMode {
 
 	RobotHardware rh;

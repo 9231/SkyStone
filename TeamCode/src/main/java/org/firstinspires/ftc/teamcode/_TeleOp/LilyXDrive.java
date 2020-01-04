@@ -62,7 +62,7 @@ import org.firstinspires.ftc.teamcode._Test._Drive.RobotHardware;
  */
 
 @TeleOp(name="LilyXDrive", group="Test")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class LilyXDrive extends OpMode {
 
 	AutoLib.SquirrelyGyroTimedDriveStep mStep;

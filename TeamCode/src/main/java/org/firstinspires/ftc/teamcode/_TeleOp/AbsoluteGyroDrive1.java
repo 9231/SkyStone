@@ -61,7 +61,7 @@ import org.firstinspires.ftc.teamcode._Test._Drive.RobotHardware;
  */
 
 @TeleOp(name="AbsoluteGyroDrive1", group="Test")  // @Autonomous(...) is the other common choice
-//@Disabled
+@Disabled
 public class  AbsoluteGyroDrive1 extends OpMode {
 
 	AutoLib.AzimuthTimedDriveStep mStep;
