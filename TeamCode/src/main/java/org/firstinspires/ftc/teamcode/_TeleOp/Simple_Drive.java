@@ -37,7 +37,7 @@ import com.qualcomm.robotcore.util.Range;
  * <p>
  * Enables control of the robot via the gamepad
  */
-@TeleOp(name="Simple_Drive", group="Savvy is Awesome with a capital A")  // @Autonomous(...) is the other common choice
+@TeleOp(name="Simple_Drive", group="!Savvy is Awesome with a capital A")  // @Autonomous(...) is the other common choice
 //@Disabled
 public class Simple_Drive extends OpMode {
 
@@ -53,7 +53,6 @@ public class Simple_Drive extends OpMode {
 //    Servo servoFinger;
 //    DcMotor motorRolyL;
 //    DcMotor motorRolyR;
-
 
     boolean bDebugFrontRight = false;
     boolean bDebugFrontLeft = false;
@@ -107,7 +106,6 @@ public class Simple_Drive extends OpMode {
          *   "FrontLeft" and "BackLeft" are front and back left wheels
          *   "FrontRight" and "BackRight" are front and back right wheels
          */
-
         /*
             debugging, basically telling the phone "if this motor is working then continue, but if
             there's a problem with anything (hardware, software, whatever isn't making
@@ -256,24 +254,25 @@ public class Simple_Drive extends OpMode {
 //        boolean rolyOut2 = lb;
 //        rolyOut = rolyOut2;
 
-
-
         if(Math.abs(FrontRight) > 1 && Math.abs(FrontRight) >= Math.abs(BackRight) && Math.abs(FrontRight) >= Math.abs(FrontLeft) && Math.abs(FrontRight) >= Math.abs(BackLeft)){
             BackRight = BackRight / Math.abs(FrontRight);
             FrontLeft = FrontLeft / Math.abs(FrontRight);
             BackLeft = BackLeft / Math.abs(FrontRight);
             FrontRight = FrontRight / Math.abs(FrontRight);
         } else if(Math.abs(BackRight) > 1 && Math.abs(BackRight) >= Math.abs(FrontRight) && Math.abs(BackRight) >= Math.abs(FrontLeft) && Math.abs(BackRight) >= Math.abs(BackLeft)){
+
             FrontRight = FrontRight / Math.abs(BackRight);
             FrontLeft = FrontLeft / Math.abs(BackRight);
             BackLeft = BackLeft / Math.abs(BackRight);
             BackRight = BackRight / Math.abs(BackRight);
         } else if(Math.abs(FrontLeft) > 1 && Math.abs(FrontLeft) >= Math.abs(FrontRight) && Math.abs(FrontLeft) >= Math.abs(BackRight) && Math.abs(FrontLeft) >= Math.abs(BackLeft)){
+
             FrontRight = FrontRight / Math.abs(FrontLeft);
             BackRight = BackRight / Math.abs(FrontLeft);
             BackLeft = BackLeft / Math.abs(FrontLeft);
             FrontLeft = FrontLeft / Math.abs(FrontLeft);
         } else if(Math.abs(BackLeft) > 1 && Math.abs(BackLeft) >= Math.abs(FrontRight) && Math.abs(BackLeft) >= Math.abs(BackRight) && Math.abs(BackLeft) >= Math.abs(FrontLeft)){
+
             FrontRight = FrontRight / Math.abs(BackLeft);
             BackRight = BackRight / Math.abs(BackLeft);
             FrontLeft = FrontLeft / Math.abs(BackLeft);
@@ -492,7 +491,6 @@ public class Simple_Drive extends OpMode {
         telemetry.addData("left trigger on gamepad 2", String.format("%.2f",lt2));
         telemetry.addData("right trigger on gamepad 2", String.format("%.2f",rt2));
         telemetry.addData("gamepad2", gamepad2);
-
     }
 
     /*

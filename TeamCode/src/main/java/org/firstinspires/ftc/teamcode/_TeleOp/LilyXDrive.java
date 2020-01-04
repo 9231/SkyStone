@@ -137,15 +137,12 @@ public class LilyXDrive extends OpMode {
 
 
 		if (gamepad1.right_trigger  > .05 && gamepad1.left_trigger > .05) {
-			//power = 1;
 			power = Math.sqrt(dx*dx + dy*dy);
 		}
 		else if (gamepad1.left_trigger > .05) {
-			//power = .8;
 			power = Math.sqrt(dx*dx + dy*dy) * .8;
 		}
 		else if (gamepad1.right_trigger > .05) {
-			//power = .2;
 			power = Math.sqrt(dx*dx + dy*dy) * .2;
 		}
 		telemetry.addData("power", power);

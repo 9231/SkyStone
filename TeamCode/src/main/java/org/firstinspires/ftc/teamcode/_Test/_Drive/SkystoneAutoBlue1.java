@@ -293,16 +293,6 @@ public class SkystoneAutoBlue1 extends OpMode {
 
     public void loop() {
 
-        // optionally adjust PID for current robot configuration
-        if (gamepad1.y)
-            bSetup = true;      // Y button: enter "setup mode" using controller inputs to set Kp and Ki
-        if (gamepad1.x)
-            bSetup = false;     // X button: exit "setup mode"
-        if (bSetup) {           // "setup mode"
-            mPidAdjuster.loop();
-            return;
-        }
-
         // until we're done, keep looping through the current Step(s)
         if (!bDone)
             bDone = mSequence.loop();       // returns true when we're done
