@@ -45,13 +45,16 @@ public class Simple_Drive extends OpMode {
     DcMotor motorFrontLeft;
     DcMotor motorBackRight;
     DcMotor motorBackLeft;
+
     // savvy snatcher
     DcMotor motorWaist;
     DcMotor motorShoulder;
     Servo servoElbow;
     private Servo Xwrist = null;
-//    private Servo Ywrist = null;
     private Servo Grab = null;
+    private Servo servoFlip3 = null;
+    private Servo servoFlip4 = null;
+//    private Servo Ywrist = null;
 
     boolean bDebugFrontRight = false;
     boolean bDebugFrontLeft = false;
@@ -64,6 +67,9 @@ public class Simple_Drive extends OpMode {
     private Boolean hasXwrist =Boolean.FALSE;
 //    private Boolean hasYwrist =Boolean.FALSE;
     private Boolean hasGrab =Boolean.FALSE;
+    private Boolean bDebugFlip3 =Boolean.FALSE;
+    private Boolean bDebugFlip4 =Boolean.FALSE;
+
 
     // savvy snatcher
     float waistRotation = 0;
@@ -77,7 +83,7 @@ public class Simple_Drive extends OpMode {
      * Constructor
      */
     public Simple_Drive() {
-        telemetry.addData("Beep", String.format("Boop"));
+        telemetry.addData("BOT", String.format("ON"));
 
     }
 
@@ -164,6 +170,20 @@ public class Simple_Drive extends OpMode {
         } catch (IllegalArgumentException iax)  {
             telemetry.addData("Xwrist", "Failed");
         }
+        try{
+            servoFlip3 = hardwareMap.get(Servo.class, "Flip3");
+            bDebugFlip3 = Boolean.TRUE;
+            telemetry.addData("Flip3", "Successful");
+        } catch (IllegalArgumentException iax){
+            telemetry.addData("Flip3", "FAILED");
+        }
+        try{
+            servoFlip4 = hardwareMap.get(Servo.class, "Flip4");
+            bDebugFlip4 = Boolean.TRUE;
+            telemetry.addData("Flip4", "Successful");
+        } catch (IllegalArgumentException iax){
+            telemetry.addData("Flip4", "FAILED");
+        }
 //        try{
 //            Ywrist  = hardwareMap.get(Servo.class, "Ywrist");
 //            hasYwrist = Boolean.TRUE;
@@ -197,7 +217,7 @@ public class Simple_Drive extends OpMode {
 
         float x3 = gamepad2.left_stick_x; //elbow
         float y3 = -gamepad2.left_stick_y; //wrist
-        float x4 = -gamepad2.right_stick_x; //waist
+        float x4 = gamepad2.right_stick_x; //waist
         float y4 = -gamepad2.right_stick_y; //shoulder
         boolean ControllerXwristL = gamepad2.dpad_left; //wrist
         boolean ControllerXwristR = gamepad2.dpad_right; //wrist
@@ -286,14 +306,13 @@ public class Simple_Drive extends OpMode {
         FrontLeft *= (1+rt);
         BackLeft *= (1+rt);
 
-        double GGrab = ControllerGrab ? 0.9 : 0.69 ;
-
+        double GGrab = ControllerGrab ? 0.96 : 0.69 ;
         int waistTarget = (int)(x4 * 600);
-         waistTarget = waistTarget < -150 ? -150: waistTarget > 550 ? 550: waistTarget;
         int shoulderTarget = (int)(y4 * 2000);
-         shoulderTarget = shoulderTarget < -150 ? -150: shoulderTarget > 1530 ? 1530: shoulderTarget;
+        waistTarget = waistTarget < -150 ? -150: waistTarget > 550 ? 550: waistTarget;
+        shoulderTarget = shoulderTarget < -200 ? -200: shoulderTarget > 1530 ? 1530: shoulderTarget;
 
-         double wristValue = Xwrist.getPosition();
+//         double wristValue = Xwrist.getPosition();
 
         // if the motors didn't fail but their supposed to be zero then set power to zero
         // write the values to the motors - for now, front and back motors on each side are set the same
@@ -323,18 +342,19 @@ public class Simple_Drive extends OpMode {
                 motorWaist.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             } else {
                 motorWaist.setTargetPosition(waistTarget);
+                motorWaist.setPower(0.05);
                 motorWaist.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                motorWaist.setPower(0.1);
             }
 			if(shoulderTarget == 0){
                 motorShoulder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 			} else {
                 motorShoulder.setTargetPosition(shoulderTarget);
+                motorShoulder.setPower(0.08);
                 motorShoulder.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                motorShoulder.setPower(0.1);
             }
             servoElbow.setPosition(y3 + 0.7086);
-            if (hasGrab) {
+
+			if (hasGrab) {
                 Grab.setPosition(GGrab);
             }
             if (ControllerXwristR) {
@@ -343,11 +363,24 @@ public class Simple_Drive extends OpMode {
             } else if (ControllerXwristL) {
                 save_dpad_XY = 0.4826;
                 Xwrist.setPosition(save_dpad_XY);
-            } else if (hasXwrist) {
-                Xwrist.setPosition(x3 + 0.4826);
-            } else if (x3 == 0) {
-                Xwrist.setPosition(wristValue);
             }
+            if (a){
+                motorWaist.setTargetPosition(0);
+                Xwrist.setPosition(0.8);
+                motorShoulder.setTargetPosition(1000);
+                servoElbow.setPosition(0.7086);
+            }
+            if (b){
+                motorWaist.setTargetPosition(0);
+                Xwrist.setPosition(0.8); 
+                motorShoulder.setTargetPosition(-20);
+                servoElbow.setPosition(0.7086);
+            }
+//            } else if (hasXwrist) {
+//                Xwrist.setPosition(x3 + 0.4826);
+//            } else if (x3 == 0) {
+//                Xwrist.setPosition(wristValue);
+//            }
 
       /*
       if(r != 0) {
