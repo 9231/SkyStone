@@ -284,7 +284,7 @@ IMBEN extends OpMode
             BackRightPower = getWheelPower(Angle, Speed, -135);
         }
 
- ƒ       // scale the direction by power buttons
+        // scale the direction by power buttons
         FrontLeftPower *= Speed;
         FrontRightPower *= Speed;
         BackLeftPower *= Speed;

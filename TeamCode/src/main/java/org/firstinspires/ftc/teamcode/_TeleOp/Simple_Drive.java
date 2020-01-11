@@ -49,33 +49,27 @@ public class Simple_Drive extends OpMode {
     DcMotor motorWaist;
     DcMotor motorShoulder;
     Servo servoElbow;
-//    Servo servoWrist;
-//    Servo servoFinger;
-//    DcMotor motorRolyL;
-//    DcMotor motorRolyR;
+    private Servo Xwrist = null;
+//    private Servo Ywrist = null;
+    private Servo Grab = null;
 
     boolean bDebugFrontRight = false;
     boolean bDebugFrontLeft = false;
     boolean bDebugBackRight = false;
     boolean bDebugBackLeft = false;
+    //snatcher
     boolean bDebugWaist = false;
     boolean bDebugShoulder = false;
     boolean bDebugElbow = false;
-//    boolean bDebugWrist = false;
-//    boolean bDebugFinger = false;
-//    boolean bDebugRolyL = false;
-//    boolean bDebugRolyR = false;
+    private Boolean hasXwrist =Boolean.FALSE;
+//    private Boolean hasYwrist =Boolean.FALSE;
+    private Boolean hasGrab =Boolean.FALSE;
+
     // savvy snatcher
     float waistRotation = 0;
     float shoulderRotation = 0;
-    float elbowRotation = 0;
-//    float wristRotation = 0;
-//    float fingerRotation = 0;
-//    boolean fingerButton =Boolean.FALSE;
-//    boolean fingerButton2 =Boolean.FALSE;
-    // roly poly
-//    boolean rolyIn =Boolean.FALSE;
-//    boolean rolyOut =Boolean.FALSE;
+    double save_dpad_XY = 0;
+
 
     boolean dontTurn = false;
 
@@ -139,11 +133,15 @@ public class Simple_Drive extends OpMode {
         // savvy snatcher
         try{
             motorWaist = hardwareMap.dcMotor.get("Waist1");
+            motorWaist.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motorWaist.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         } catch (IllegalArgumentException iax) {
             bDebugWaist = true;
         }
         try {
             motorShoulder = hardwareMap.dcMotor.get("Shoulder0");
+            motorShoulder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motorShoulder.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         } catch (IllegalArgumentException iax) {
             bDebugShoulder = true;
         }
@@ -152,27 +150,28 @@ public class Simple_Drive extends OpMode {
         } catch (IllegalArgumentException iax) {
             bDebugElbow = true;
         }
+        try{
+            Grab  = hardwareMap.get(Servo.class, "Grab");
+            hasGrab = Boolean.TRUE;
+            telemetry.addData("Grab", "Initialized");
+        } catch (IllegalArgumentException iax)  {
+            telemetry.addData("Grab", "Failed");
+        }
+        try{
+            Xwrist  = hardwareMap.get(Servo.class, "Xwrist");
+            hasXwrist = Boolean.TRUE;
+            telemetry.addData("Xwrist", "Initialized");
+        } catch (IllegalArgumentException iax)  {
+            telemetry.addData("Xwrist", "Failed");
+        }
 //        try{
-//            servoWrist = hardwareMap.servo.get("Wrist");
+//            Ywrist  = hardwareMap.get(Servo.class, "Ywrist");
+//            hasYwrist = Boolean.TRUE;
+//            telemetry.addData("Ywrist", "Initialized");
 //        } catch (IllegalArgumentException iax) {
-//            bDebugWrist = true;
+//            telemetry.addData("Ywrist", "Failed");
 //        }
-//        try{
-//            servoFinger = hardwareMap.servo.get("Finger");
-//        } catch (IllegalArgumentException iax) {
-//            bDebugFinger = true;
-//        }
-        //Roly Poly
-//        try{
-//            motorRolyL = hardwareMap.dcMotor.get("RolyL");
-//        } catch (IllegalArgumentException iax) {
-//            bDebugRolyL = true;
-//        }
-//        try{
-//            motorRolyR = hardwareMap.dcMotor.get("RolyR");
-//        } catch (IllegalArgumentException iax) {
-//            bDebugRolyR = true;
-//        }
+
     }
 
     @Override
@@ -196,12 +195,16 @@ public class Simple_Drive extends OpMode {
         boolean rb = gamepad1.right_bumper;
         boolean lb = gamepad1.left_bumper;
 
-        float x3 = gamepad2.left_stick_x; //waist
+        float x3 = gamepad2.left_stick_x; //elbow
         float y3 = -gamepad2.left_stick_y; //wrist
-        float x4 = gamepad2.right_stick_x; //elbow
-        float y4 = gamepad2.right_stick_y; //shoulder
-        boolean rb2 = gamepad2.right_bumper ; //finger in
-        boolean lb2 = gamepad2.left_bumper; //finger out
+        float x4 = -gamepad2.right_stick_x; //waist
+        float y4 = -gamepad2.right_stick_y; //shoulder
+        boolean ControllerXwristL = gamepad2.dpad_left; //wrist
+        boolean ControllerXwristR = gamepad2.dpad_right; //wrist
+        boolean ControllerGrab = gamepad2.right_bumper; //finger
+        boolean a = gamepad2.a;
+        boolean b = gamepad2.b;
+
 
         // lt = half speed
         float lt = gamepad1.left_trigger;
@@ -219,8 +222,8 @@ public class Simple_Drive extends OpMode {
         // snazzy snatcher controls
         x3 = Range.clip(x3, -1, 1);
         y3 = Range.clip(y3, -1, 1);
-        x4 = Range.clip(x4, -1, 1);
-        y4 = Range.clip(y4, -1, 1);
+//        x4 = Range.clip(x4, -1, 1);
+//        y4 = Range.clip(y4, -1, 1);
 
         // scale the joystick value to make it easier to control
         // the robot more precisely at slower speeds
@@ -229,30 +232,19 @@ public class Simple_Drive extends OpMode {
         r1 = (float)scaleInput(r1);
         // snazzy snatcher controls
         x3 = (float)scaleInput(x3);
-        y3 = (float)scaleInput(y3);
-        x4 = (float)scaleInput(x4);
-        y4 = (float)scaleInput(y4);
+//        y3 = (float)scaleInput(y3);
+//        x4 = (float)scaleInput(x4);
+//        y4 = (float)scaleInput(y4);
 
         // power set to the motors
         float FrontRight = (y1-x1)-r1;
         float BackRight = (y1+x1)-r1;
         float FrontLeft = (y1+x1+r1);
         float BackLeft= (y1-x1)+r1;
-        // power set to the snazzy snatcher motors ~ /20 for testing purposes
-        float waistRotationIncrement = x3/99;
-        waistRotation += waistRotationIncrement;
-        float shoulderRotationIncrement = y4/99;
-        shoulderRotation += shoulderRotationIncrement;
-        float elbowRotationIncrement = x4/99;
-        elbowRotation += elbowRotationIncrement;
-//        float wristRotationIncrement = y3;
-//        wristRotation += wristRotationIncrement;
-//        boolean fingerButton = rb2;
-//        boolean fingerButton2 = lb2;
-//        boolean rolyIn2 = rb;
-//        rolyIn = rolyIn2;
-//        boolean rolyOut2 = lb;
-//        rolyOut = rolyOut2;
+//        // power set to the snazzy snatcher motors ~ /20 for testing purposes
+//        float elbowRotationIncrement = x3/20;
+//        elbowRotation += elbowRotationIncrement;
+
 
         if(Math.abs(FrontRight) > 1 && Math.abs(FrontRight) >= Math.abs(BackRight) && Math.abs(FrontRight) >= Math.abs(FrontLeft) && Math.abs(FrontRight) >= Math.abs(BackLeft)){
             BackRight = BackRight / Math.abs(FrontRight);
@@ -260,67 +252,24 @@ public class Simple_Drive extends OpMode {
             BackLeft = BackLeft / Math.abs(FrontRight);
             FrontRight = FrontRight / Math.abs(FrontRight);
         } else if(Math.abs(BackRight) > 1 && Math.abs(BackRight) >= Math.abs(FrontRight) && Math.abs(BackRight) >= Math.abs(FrontLeft) && Math.abs(BackRight) >= Math.abs(BackLeft)){
-
             FrontRight = FrontRight / Math.abs(BackRight);
             FrontLeft = FrontLeft / Math.abs(BackRight);
             BackLeft = BackLeft / Math.abs(BackRight);
             BackRight = BackRight / Math.abs(BackRight);
         } else if(Math.abs(FrontLeft) > 1 && Math.abs(FrontLeft) >= Math.abs(FrontRight) && Math.abs(FrontLeft) >= Math.abs(BackRight) && Math.abs(FrontLeft) >= Math.abs(BackLeft)){
-
             FrontRight = FrontRight / Math.abs(FrontLeft);
             BackRight = BackRight / Math.abs(FrontLeft);
             BackLeft = BackLeft / Math.abs(FrontLeft);
             FrontLeft = FrontLeft / Math.abs(FrontLeft);
         } else if(Math.abs(BackLeft) > 1 && Math.abs(BackLeft) >= Math.abs(FrontRight) && Math.abs(BackLeft) >= Math.abs(BackRight) && Math.abs(BackLeft) >= Math.abs(FrontLeft)){
-
             FrontRight = FrontRight / Math.abs(BackLeft);
             BackRight = BackRight / Math.abs(BackLeft);
             FrontLeft = FrontLeft / Math.abs(BackLeft);
             BackLeft = BackLeft / Math.abs(BackLeft);
         }
-        // snazzy snatcher
-        if(waistRotation >= 10){
-            waistRotation = 10;
-        } else if(waistRotation <= 0){
-            waistRotation = 0;
-        }
-		if(shoulderRotation >= 10){
-			shoulderRotation = 10;
-			//dontTurn = true;
-		} else if(shoulderRotation <= 0){
-			shoulderRotation = 0;
-			//dontTurn = true;
-		}
-		if(elbowRotation >= 10){
-		    elbowRotation = 10;
-        } else if(elbowRotation <= 10){
-		    elbowRotation = 0;
-        }
-//		if(wristRotation >= 10){
-//		    wristRotation = 10;
-//        } else if(wristRotation <= 10){
-//		    wristRotation = 0;
-//        }
-//		if(!fingerButton){
-//		    fingerRotation = 0;
-//        } else if(fingerButton){
-//		    fingerRotation = 1;
-//        }
-//		if(!fingerButton2){
-//		    fingerRotation = 0;
-//        } else if(fingerButton2){
-//		    fingerRotation = -1;
-//        }
-		// roly poly
-//        if(rolyIn2){
-//            motorRolyL.setPower(-1);
-//            motorRolyR.setPower(1);
-//        }
-//        if(rolyOut2){
-//            motorRolyL.setPower(1);
-//            motorRolyR.setPower(-1);
-//        }
 
+
+        //bruh when you don't not want the robot to turn
         dontTurn = false;
 
 		// value of motors/servos
@@ -336,21 +285,19 @@ public class Simple_Drive extends OpMode {
         BackRight *= (1+rt);
         FrontLeft *= (1+rt);
         BackLeft *= (1+rt);
-        // savvy snatcher
-        float waistRotation = x3;
-        waistRotation *= (1-(rt2/2));
-        float shoulderRotation = y4;
-        shoulderRotation *= (1-(rt2/2));
-        float elbowRotation = x4;
-        elbowRotation *= (1-(rt2/2));
-//        float wristRotation = y3;
-//        wristRotation *= (1-(lt2/2));
 
+        double GGrab = ControllerGrab ? 0.9 : 0.69 ;
 
+        int waistTarget = (int)(x4 * 600);
+         waistTarget = waistTarget < -150 ? -150: waistTarget > 550 ? 550: waistTarget;
+        int shoulderTarget = (int)(y4 * 2000);
+         shoulderTarget = shoulderTarget < -150 ? -150: shoulderTarget > 1530 ? 1530: shoulderTarget;
+
+         double wristValue = Xwrist.getPosition();
 
         // if the motors didn't fail but their supposed to be zero then set power to zero
         // write the values to the motors - for now, front and back motors on each side are set the same
-        if (!bDebugFrontRight || !bDebugBackRight || !bDebugFrontLeft || !bDebugBackLeft || !bDebugWaist || !bDebugShoulder || !bDebugElbow) {
+        if (!bDebugFrontRight || !bDebugBackRight || !bDebugFrontLeft || !bDebugBackLeft || !bDebugWaist || !bDebugShoulder || !bDebugElbow || !hasGrab || !hasXwrist) {
             if(FrontRight == 0){
                 motorFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             } else{
@@ -372,36 +319,36 @@ public class Simple_Drive extends OpMode {
                 motorBackLeft.setPower(BackLeft);
             }
             //snazzy snatcher
-            if(waistRotation == 0){
+            if(waistTarget == 0){
                 motorWaist.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            } else{
-                motorWaist.setPower(waistRotation);
+            } else {
+                motorWaist.setTargetPosition(waistTarget);
+                motorWaist.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                motorWaist.setPower(0.1);
             }
-			if(shoulderRotation == 0){
-				motorShoulder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-			} else{
-                motorShoulder.setPower(shoulderRotation);
+			if(shoulderTarget == 0){
+                motorShoulder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+			} else {
+                motorShoulder.setTargetPosition(shoulderTarget);
+                motorShoulder.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                motorShoulder.setPower(0.1);
             }
-            if(elbowRotation == 0) {
-                servoElbow.setPosition(0.75-shoulderRotation);
-            } else{
-                servoElbow.setPosition(elbowRotation);
+            servoElbow.setPosition(y3 + 0.7086);
+            if (hasGrab) {
+                Grab.setPosition(GGrab);
             }
-//            if(wristRotation == 0) {
-//                servoWrist.setPosition(Servo.MIN_POSITION);
-//            } else{
-//                servoWrist.setPosition(wristRotation);
-//            }
-//            if(!fingerButton){
-//                servoFinger.setPosition(Servo.MIN_POSITION);
-//            } else{
-//                servoWrist.setPosition(fingerRotation);
-//            }
-//            if(!fingerButton2){
-//                servoFinger.setPosition(Servo.MIN_POSITION);
-//            } else{
-//                servoWrist.setPosition(fingerRotation);
-//            }
+            if (ControllerXwristR) {
+                save_dpad_XY = 0.8;
+                Xwrist.setPosition(save_dpad_XY);
+            } else if (ControllerXwristL) {
+                save_dpad_XY = 0.4826;
+                Xwrist.setPosition(save_dpad_XY);
+            } else if (hasXwrist) {
+                Xwrist.setPosition(x3 + 0.4826);
+            } else if (x3 == 0) {
+                Xwrist.setPosition(wristValue);
+            }
+
       /*
       if(r != 0) {
          x = 0;
@@ -450,6 +397,19 @@ public class Simple_Drive extends OpMode {
         telemetry.addData("left trigger on gamepad 1", String.format("%.2f",lt));
         telemetry.addData("right trigger on gamepad 1", String.format("%.2f",rt));
         telemetry.addData("gamepad1", gamepad1);
+
+
+        // testing
+        telemetry.addData("waist", motorWaist.getCurrentPosition());
+        telemetry.addData("shoulder", motorShoulder.getCurrentPosition());
+
+        telemetry.addData("waist go to", waistTarget);
+        telemetry.addData("shoulder go to", shoulderTarget);
+        telemetry.addData("finger", ControllerGrab);
+        telemetry.addData("Xwrist", y3);
+        telemetry.addData("Elbow", x3);
+
+
         // snazzy snatcher motors
         if(!bDebugWaist){
             telemetry.addData("waist motor (1)", String.format("%.2f", waistRotation));
@@ -457,36 +417,16 @@ public class Simple_Drive extends OpMode {
             telemetry.addData("waist motor (1)", String.format("malfunctioning"));
         }
         if(!bDebugShoulder){
-            telemetry.addData("shoulder motor", String.format("%.2f", shoulderRotation));
+            telemetry.addData("shoulder motor (0)", String.format("%.2f", shoulderRotation));
         } else{
-            telemetry.addData("shoulder motor", String.format("not working"));
+            telemetry.addData("shoulder motor (0)", String.format("not working"));
         }
         if(!bDebugElbow){
-            telemetry.addData("elbow servo", String.format("%.2f",elbowRotation));
+            telemetry.addData("elbow servo", String.format("%.2f",x3));
         } else{
             telemetry.addData("elbow servo", String.format("BLEEP BLOOP how about NOPE ha noob"));
         }
-//        if(!bDebugWrist){
-//            telemetry.addData("wrist servo", String.format("why??? %.2f????", wristRotation));
-//        } else{
-//            telemetry.addData("wrist servo", String.format("error"));
-//        }
-//        if(!bDebugFinger){
-//            telemetry.addData("finger servo", String.format("what even is %.2f", fingerRotation));
-//        } else{
-//            telemetry.addData("finger servo", String.format("yeah the finger isn't working.. which honestly wasn't surprising but still :/ but hey. you'll get it to work :) I believe in you cuz ur awesome"));
-//        }
-        // roly poly
-//        if(!bDebugRolyL){
-//            telemetry.addData("Roly Poly left motor", String.format("%.2f", rolyIn));
-//        } else{
-//            telemetry.addData("Roly Poly left motor", String.format("not working"));
-//        }
-//        if(!bDebugRolyR){
-//            telemetry.addData("Roly Poly right motor", String.format("%.2f", rolyIn));
-//        } else{
-//            telemetry.addData("Roly Poly right motor", String.format("not working"));
-//        }
+
         // gamepad2 controls that control speed
         telemetry.addData("left trigger on gamepad 2", String.format("%.2f",lt2));
         telemetry.addData("right trigger on gamepad 2", String.format("%.2f",rt2));
