@@ -75,7 +75,8 @@ public class Simple_Drive extends OpMode {
     float waistRotation = 0;
     float shoulderRotation = 0;
     double save_dpad_XY = 0;
-
+    double servop = 0.7086;
+    double GGrab = 0.69;
 
     boolean dontTurn = false;
 
@@ -83,7 +84,7 @@ public class Simple_Drive extends OpMode {
      * Constructor
      */
     public Simple_Drive() {
-        telemetry.addData("BOT", String.format("ON"));
+        telemetry.addData("status", String.format("ON"));
 
     }
 
@@ -203,6 +204,10 @@ public class Simple_Drive extends OpMode {
          * also for rotating the elbow (x)
          *
          * try to make it so if the shoulder goes up the elbow goes the opposite amount
+         *
+         *
+         *
+         *
          * (to remain level to the ground)
          * potentially make a button that if pressed will allow manual adjustment
          */
@@ -216,14 +221,21 @@ public class Simple_Drive extends OpMode {
         boolean lb = gamepad1.left_bumper;
 
         float x3 = gamepad2.left_stick_x; //elbow
-        float y3 = -gamepad2.left_stick_y; //wrist
+        boolean wristd= gamepad2.dpad_down; //wrist down
+        boolean wristu = gamepad2.dpad_up; //wrist up
+        float y3 = gamepad2.left_stick_y; //elbow
+
+
         float x4 = gamepad2.right_stick_x; //waist
         float y4 = -gamepad2.right_stick_y; //shoulder
         boolean ControllerXwristL = gamepad2.dpad_left; //wrist
         boolean ControllerXwristR = gamepad2.dpad_right; //wrist
         boolean ControllerGrab = gamepad2.right_bumper; //finger
+        boolean ControllerRealease = gamepad2.left_bumper; //finger
+
         boolean a = gamepad2.a;
         boolean b = gamepad2.b;
+
 
 
         // lt = half speed
@@ -241,7 +253,6 @@ public class Simple_Drive extends OpMode {
         r1 = Range.clip(r1, -1, 1);
         // snazzy snatcher controls
         x3 = Range.clip(x3, -1, 1);
-        y3 = Range.clip(y3, -1, 1);
 //        x4 = Range.clip(x4, -1, 1);
 //        y4 = Range.clip(y4, -1, 1);
 
@@ -306,12 +317,11 @@ public class Simple_Drive extends OpMode {
         FrontLeft *= (1+rt);
         BackLeft *= (1+rt);
 
-        double GGrab = ControllerGrab ? 0.96 : 0.69 ;
         int waistTarget = (int)(x4 * 600);
         int shoulderTarget = (int)(y4 * 2000);
         waistTarget = waistTarget < -150 ? -150: waistTarget > 550 ? 550: waistTarget;
-        shoulderTarget = shoulderTarget < -200 ? -200: shoulderTarget > 1530 ? 1530: shoulderTarget;
-
+        shoulderTarget = shoulderTarget < -20 ? -20: shoulderTarget > 1530 ? 1530: shoulderTarget;
+//        double shoulderSpeed = 0.08;
 //         double wristValue = Xwrist.getPosition();
 
         // if the motors didn't fail but their supposed to be zero then set power to zero
@@ -345,17 +355,28 @@ public class Simple_Drive extends OpMode {
                 motorWaist.setPower(0.05);
                 motorWaist.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
-			if(shoulderTarget == 0){
+			if(shoulderTarget == 0 && !a && !b){
                 motorShoulder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-			} else {
+			} else if (!a && !b){
                 motorShoulder.setTargetPosition(shoulderTarget);
-                motorShoulder.setPower(0.08);
+                motorShoulder.setPower(0.2);
                 motorShoulder.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
-            servoElbow.setPosition(y3 + 0.7086);
-
-			if (hasGrab) {
-                Grab.setPosition(GGrab);
+            if (a){
+                motorWaist.setTargetPosition(0);
+                Xwrist.setPosition(0.8);
+                motorShoulder.setTargetPosition(1000);
+                motorShoulder.setPower(0.5);
+                motorShoulder.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                servop = 0.7086;
+            }
+            if (b){
+                motorWaist.setTargetPosition(0);
+                Xwrist.setPosition(0.8);
+                motorShoulder.setTargetPosition(-20);
+                motorShoulder.setPower(0.5);
+                motorShoulder.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                servop = 0.7086;
             }
             if (ControllerXwristR) {
                 save_dpad_XY = 0.8;
@@ -364,18 +385,21 @@ public class Simple_Drive extends OpMode {
                 save_dpad_XY = 0.4826;
                 Xwrist.setPosition(save_dpad_XY);
             }
-            if (a){
-                motorWaist.setTargetPosition(0);
-                Xwrist.setPosition(0.8);
-                motorShoulder.setTargetPosition(1000);
-                servoElbow.setPosition(0.7086);
+            if (ControllerGrab) {
+                GGrab = 0.96;
+            } else if (ControllerRealease) {
+                GGrab = 0.69;
             }
-            if (b){
-                motorWaist.setTargetPosition(0);
-                Xwrist.setPosition(0.8); 
-                motorShoulder.setTargetPosition(-20);
-                servoElbow.setPosition(0.7086);
+            if (hasGrab) {
+                Grab.setPosition(GGrab);
             }
+            if(wristd) {
+                servop -= 0.1;
+            }
+            if(wristu) {
+                servop += 0.1;
+            }
+            servoElbow.setPosition(servop);
 //            } else if (hasXwrist) {
 //                Xwrist.setPosition(x3 + 0.4826);
 //            } else if (x3 == 0) {
@@ -400,7 +424,7 @@ public class Simple_Drive extends OpMode {
          * will return a null value. The legacy NXT-compatible motor controllers
          * are currently write only.
          */
-        telemetry.addData("T-t-testing in p-p-progress... UwU (© w ©)", "U w U");
+        telemetry.addData("status=", "ready");
 
         /*
          * Checks for each wheel's power, and if the wheel setup ran into an error,
@@ -439,8 +463,8 @@ public class Simple_Drive extends OpMode {
         telemetry.addData("waist go to", waistTarget);
         telemetry.addData("shoulder go to", shoulderTarget);
         telemetry.addData("finger", ControllerGrab);
-        telemetry.addData("Xwrist", y3);
-        telemetry.addData("Elbow", x3);
+        telemetry.addData("Xwrist", x3);
+        telemetry.addData("Elbow", servop);
 
 
         // snazzy snatcher motors
@@ -457,7 +481,7 @@ public class Simple_Drive extends OpMode {
         if(!bDebugElbow){
             telemetry.addData("elbow servo", String.format("%.2f",x3));
         } else{
-            telemetry.addData("elbow servo", String.format("BLEEP BLOOP how about NOPE ha noob"));
+            telemetry.addData("elbow servo", String.format("12345678901234567890"));
         }
 
         // gamepad2 controls that control speed
